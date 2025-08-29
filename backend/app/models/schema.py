@@ -27,8 +27,8 @@ class PredictCalorieRequest(BaseModel):
 # experience_level        int64
 # bmi                   float64
 
-class PredictCalorieResponse:
-    user_id: int
+class PredictCalorieResponse(BaseModel):
+    user_id: str
     pred_id : int
     predicted_calories: float
 
