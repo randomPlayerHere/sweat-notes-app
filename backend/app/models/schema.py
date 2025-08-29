@@ -30,5 +30,6 @@ class PredictCalorieRequest(BaseModel):
 class PredictCalorieResponse:
     user_id: int
     pred_id : int
+    predicted_calories: float
 
 
