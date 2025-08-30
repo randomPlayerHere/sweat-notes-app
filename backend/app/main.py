@@ -1,6 +1,7 @@
+from pyexpat import features
 from fastapi import FastAPI
-from models.schema import PredictCalorieRequest, PredictCalorieResponse
-from services.calorie_prediction import get_prediction
+from backend.app.models.schema import PredictCalorieRequest, PredictCalorieResponse
+from backend.app.services.calorie_prediction import get_prediction
 
 app = FastAPI(title="Sweat Notes")
 
@@ -8,20 +9,9 @@ app = FastAPI(title="Sweat Notes")
 def status():
     return {"message": "FastAPI Backend is running"}
 
-@app.get("/predict/")
+@app.post("/predict/")
 def predictCalories(req: PredictCalorieRequest):
-    features = [
-        req.age,
-        req.gender,
-        req.weight,
-        req.height,
-        req.bmi,
-        req.workout_type,
-        req.session_duration,
-        req.experience_level,
-        req.workout_frequency,
-        req.fat_percentage
-    ]
+    features = req.dict()
     prediction = get_prediction(features)
     response = PredictCalorieResponse(
         user_id=req.user_id,

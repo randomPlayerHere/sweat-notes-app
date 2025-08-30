@@ -7,7 +7,7 @@ class PredictCalorieRequest(BaseModel):
     age : int
     gender: str
     weight: int
-    height : int
+    height : float
     workout_type: str
     fat_percentage : float
     workout_type: str
@@ -29,7 +29,6 @@ class PredictCalorieRequest(BaseModel):
 
 class PredictCalorieResponse(BaseModel):
     user_id: str
-    pred_id : int
     predicted_calories: float
 
 
