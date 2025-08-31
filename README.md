@@ -1,242 +1,150 @@
-# 🏋️ SweatNotes - AI-Powered Fitness Platform
+# SweatNotes - AI-Powered Fitness Platform
 
-<div align="center">
-  <img src="https://img.shields.io/badge/Python-3.13-blue.svg" alt="Python">
-  <img src="https://img.shields.io/badge/FastAPI-0.116.1-green.svg" alt="FastAPI">
-  <img src="https://img.shields.io/badge/Scikit--learn-1.7.1-orange.svg" alt="Scikit-learn">
-  <img src="https://img.shields.io/badge/Google-Generative_AI-yellow.svg" alt="Google AI">
-  <img src="https://img.shields.io/badge/License-MIT-red.svg" alt="License">
-</div>
+## Overview
 
-## 📖 Overview
+SweatNotes is a fitness platform that uses machine learning and AI to provide personalized workout recommendations and calorie burn predictions. It combines ML models with a Retrieval-Augmented Generation (RAG) system and Google’s Generative AI to deliver customized fitness solutions.
 
-SweatNotes is an intelligent fitness platform that combines machine learning and AI to provide personalized workout recommendations and calorie burn predictions. The platform leverages advanced ML models, RAG (Retrieval-Augmented Generation) architecture, and Google's Generative AI to deliver tailored fitness solutions.
+## Features
 
-## ✨ Key Features
+* Calorie burn prediction based on user profile and workout details
+* AI-driven workout planner using a RAG-based recommendation system
+* Data analytics and visualization for fitness tracking
+* RESTful API built with FastAPI
+* End-to-end ML pipeline for training and deployment
 
-- **🔥 Calorie Burn Prediction**: ML-powered calorie estimation based on user profile and workout characteristics
-- **🤖 AI Workout Planner**: RAG-based system generating personalized workout plans using a comprehensive exercise database
-- **📊 Data-Driven Insights**: Advanced analytics and visualization for fitness tracking
-- **🚀 RESTful API**: FastAPI backend for seamless integration and scalability
-- **📈 ML Pipeline**: Complete machine learning workflow from data preprocessing to model deployment
-
-## 🏗️ Architecture
+## Project Structure
 
 ```
 SweatNotes/
-├── 📁 backend/           # FastAPI backend services
+├── backend/            # FastAPI backend services
 │   ├── app/
-│   │   ├── main.py       # FastAPI application entry point
-│   │   ├── models/       # Pydantic schemas and data models
+│   │   ├── main.py       # Application entry point
+│   │   ├── models/       # Data models and schemas
 │   │   ├── services/     # Business logic and ML predictions
-│   │   └── utils/        # Utility functions and preprocessing
+│   │   └── utils/        # Utility functions
 │   └── requirements.txt  # Python dependencies
-├── 📁 rag/               # RAG system for workout recommendations
-│   ├── api.py           # Flask API for workout generation
+├── rag/                # RAG system for workout recommendations
+│   ├── api.py           # API for workout generation
 │   ├── ingest.py        # Vector database construction
 │   ├── rag.py           # RAG implementation
-│   └── utils.py         # RAG utilities
-├── 📁 ml_models/         # Trained machine learning models
-├── 📁 notebooks/         # Jupyter notebooks for ML experimentation
-├── 📁 data/             # Training data and exercise database
-└── 📁 frontend/         # Frontend components (if applicable)
+│   └── utils.py         # Utilities
+├── ml_models/           # Trained ML models
+├── notebooks/           # Jupyter notebooks for experimentation
+├── data/                # Training data and exercise database
+└── frontend/            # Frontend components (if applicable)
 ```
 
-## 🛠️ Technology Stack
+## Technology Stack
 
-### Backend & APIs
-- **FastAPI**: High-performance web framework for building APIs
-- **Flask**: Lightweight framework for RAG API services
-- **Pydantic**: Data validation and serialization
+**Backend & APIs**
 
-### Machine Learning
-- **Scikit-learn**: ML algorithms and model training
-- **Pandas & NumPy**: Data manipulation and numerical computing
-- **Joblib**: Model serialization and persistence
+* FastAPI
+* Flask (for RAG API)
+* Pydantic
 
-### AI & NLP
-- **Google Generative AI**: Advanced language model integration
-- **Vector Embeddings**: Semantic search and similarity matching
-- **RAG Architecture**: Retrieval-Augmented Generation for context-aware responses
+**Machine Learning**
 
-### Data & Visualization
-- **Matplotlib & Seaborn**: Statistical visualization
-- **Supabase**: Database and backend services
-- **CSV Processing**: Exercise database management
+* Scikit-learn
+* Pandas, NumPy
+* Joblib
 
-## 🚀 Quick Start
+**AI & NLP**
+
+* Google Generative AI
+* Vector embeddings
+* RAG architecture
+
+**Data & Visualization**
+
+* Matplotlib, Seaborn
+* Supabase
+* CSV-based datasets
+
+## Quick Start
 
 ### Prerequisites
-- Python 3.13+
-- Virtual environment (recommended)
-- API keys for Google Generative AI (optional, for RAG features)
+
+* Python 3.13+
+* Virtual environment recommended
+* Google Generative AI API key (optional, for RAG features)
 
 ### Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/randomPlayerHere/sweat-notes-streamlit.git
-   cd sweatNotes
-   ```
+```bash
+git clone https://github.com/randomPlayerHere/sweat-notes-streamlit.git
+cd sweatNotes
+python -m venv env
+source env/bin/activate  # On Windows: env\Scripts\activate
+pip install -r backend/requirements.txt
+```
 
-2. **Set up virtual environment**
-   ```bash
-   python -m venv env
-   source env/bin/activate  # On Windows: env\Scripts\activate
-   ```
+Set up environment variables in a `.env` file:
 
-3. **Install dependencies**
-   ```bash
-   pip install -r backend/requirements.txt
-   ```
-
-4. **Environment setup**
-   ```bash
-   # Create .env file with your API keys
-   echo "GOOGLE_API_KEY=your_google_api_key_here" > .env
-   echo "SUPABASE_URL=your_supabase_url" >> .env
-   echo "SUPABASE_KEY=your_supabase_key" >> .env
-   ```
+```
+GOOGLE_API_KEY=your_google_api_key
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_key
+```
 
 ### Running the Application
 
-1. **Start the FastAPI backend**
-   ```bash
-   cd backend
-   uvicorn app.main:app --reload --port 8000
-   ```
+Start the FastAPI backend:
 
-2. **Start the RAG API (separate terminal)**
-   ```bash
-   cd rag
-   python api.py
-   ```
-
-3. **Access the services**
-   - FastAPI Documentation: `http://localhost:8000/docs`
-   - RAG API: `http://localhost:5000`
-
-## 📡 API Endpoints
-
-### Calorie Prediction API
-
-#### `POST /predict/`
-Predict calories burned based on user and workout data.
-
-**Request Body:**
-```json
-{
-  "user_id": "user123",
-  "age": 25,
-  "gender": "Male",
-  "weight": 70,
-  "height": 1.75,
-  "workout_type": "Running",
-  "fat_percentage": 15.0,
-  "experience_level": 3,
-  "bmi": 22.9,
-  "intensity_level": 4,
-  "session_duration": 1.5
-}
+```bash
+cd backend
+uvicorn app.main:app --reload --port 8000
 ```
 
-**Response:**
-```json
-{
-  "user_id": "user123",
-  "predicted_calories": 487.2
-}
+Start the RAG API (in another terminal):
+
+```bash
+cd rag
+python api.py
 ```
 
-### Workout Generation API
+Services:
 
-#### `POST /generate`
-Generate personalized workout plans using RAG.
+* FastAPI docs: `http://localhost:8000/docs`
+* RAG API: `http://localhost:5000`
 
-**Request Body:**
-```json
-{
-  "query": "I want a beginner chest and triceps workout using dumbbells"
-}
-```
+## API Endpoints
 
-**Response:**
-```json
-{
-  "plan": "Here's your personalized workout plan with exercise descriptions..."
-}
-```
+**Calorie Prediction** – `POST /predict/`
+Predicts calories burned based on user/workout input.
 
-## 🧠 Machine Learning Pipeline
+**Workout Generation** – `POST /generate`
+Generates a workout plan using RAG and Google Generative AI.
 
-### Calorie Prediction Model
+## Machine Learning Pipeline
 
-The calorie prediction system uses a **Random Forest Regressor** with advanced feature engineering:
+The calorie prediction model is based on a Random Forest Regressor, with feature engineering (BMR calculation, workout intensity), preprocessing (categorical encodings), and optimization (grid search with cross-validation). Models are serialized with Joblib for deployment.
 
-- **Feature Engineering**: BMR calculation, workout intensity metrics, duration-based features
-- **Preprocessing**: One-hot encoding for categorical variables, ordinal encoding for experience levels
-- **Model Performance**: Optimized through grid search with cross-validation
+## RAG System
 
-### Training Process
+The RAG system provides personalized workout recommendations by combining:
 
-1. **Data Preprocessing**: Clean and transform raw fitness data
-2. **Feature Engineering**: Create derived features (BMR, intensity scores)
-3. **Model Training**: Random Forest with hyperparameter optimization
-4. **Validation**: Cross-validation and test set evaluation
-5. **Deployment**: Model serialization using joblib
+* A vector database of exercises (embeddings)
+* Semantic search (cosine similarity)
+* Google Generative AI for context-aware plan generation
 
-## 🤖 RAG System
+## Data Sources
 
-The Retrieval-Augmented Generation system provides intelligent workout recommendations:
+* Exercise database (\~500 exercises with metadata)
+* Training data (synthetic and real-world)
+* User profile data (demographics and fitness characteristics)
 
-- **Vector Database**: Exercise embeddings using Google's text-embedding-004
-- **Semantic Search**: Cosine similarity for exercise matching
-- **Context-Aware Generation**: Google Generative AI with retrieved context
-- **Exercise Database**: 500+ exercises with detailed metadata
+## Experimentation
 
-## 📊 Data Sources
+Jupyter notebooks in `/notebooks/` include:
 
-- **Exercise Database**: Comprehensive collection of 500+ exercises with muscle groups, equipment, and difficulty levels
-- **Training Data**: Synthetic and real-world fitness data for model training
-- **User Profiles**: Demographic and fitness characteristic data
+* `calorie_predictor.ipynb`: ML pipeline
+* `eda_workout.ipynb`: Workout dataset exploration
+* `eda.ipynb`: General data analysis
 
-## 🔬 Experimentation & Development
+## License
 
-Explore the Jupyter notebooks in the `notebooks/` directory:
+This project is licensed under the MIT License. See [LICENSE](LICENSE).
 
-- `calorie_predictor.ipynb`: Complete ML pipeline development
-- `eda_workout.ipynb`: Exploratory data analysis for workout data
-- `eda.ipynb`: General data exploration and visualization
+## Author
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👥 Authors
-
-- **randomPlayerHere** - *Initial work* - [GitHub Profile](https://github.com/randomPlayerHere)
-
-## 🙏 Acknowledgments
-
-- Google Generative AI for powerful language model capabilities
-- Scikit-learn community for excellent ML tools
-- FastAPI team for the high-performance web framework
-- Open-source fitness data contributors
-
-## 📞 Support
-
-For support, questions, or feature requests, please open an issue on GitHub or contact the maintainers.
-
----
-
-<div align="center">
-  <strong>Built with ❤️ for the fitness community</strong>
-</div>
+Developed by [randomPlayerHere](https://github.com/randomPlayerHere).
