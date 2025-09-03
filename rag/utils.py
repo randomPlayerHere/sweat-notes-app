@@ -13,7 +13,7 @@ def load_workouts(path="data/context_exercises.csv"):
 
 def get_embedding(text: str) -> np.ndarray:
     res = genai.embed_content(
-        model="models/embedding-001",
+        model="gemini-embedding-001",
         content=text
     )
     return np.array(res["embedding"], dtype=np.float32)

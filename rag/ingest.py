@@ -1,10 +1,11 @@
 from utils import load_workouts, get_embedding
 import pandas as pd
 import numpy as np
-
-vector_db = []
+import csv
+import pickle
 
 def build_vector_db(csv_path="data/context_exercises.csv"):
+    vector_db = []
     df = load_workouts(csv_path)
     for _, row in df.iterrows():
         text = f"""
@@ -24,4 +25,10 @@ def build_vector_db(csv_path="data/context_exercises.csv"):
             "text": text
         })
     print(f"✅ Built in-memory DB with {len(vector_db)} exercises")
+    with open("vector_db.pkl", "wb") as f:
+        pickle.dump(vector_db, f)
     return vector_db
+
+if __name__ == "__main__":
+    db = build_vector_db("data/context_exercises.csv")
+    print(db[0])  # Print the first entry to verify
