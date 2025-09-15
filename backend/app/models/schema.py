@@ -1,6 +1,4 @@
-from pydantic import BaseModel
-from typing import List
-
+from pydantic import BaseModel, EmailStr
 
 class PredictCalorieRequest(BaseModel):
     user_id : str
@@ -10,7 +8,8 @@ class PredictCalorieRequest(BaseModel):
     height : float
     workout_type: str
     fat_percentage : float
-    workout_type: str
+    workout_frequency: int
+    #earlier here there was workout_type by mistake, i.e. repeated, i changed it, and puut frequency
     experience_level : int
     bmi : float
     intensity_level : int
@@ -32,3 +31,21 @@ class PredictCalorieResponse(BaseModel):
     predicted_calories: float
 
 
+class SignUpRequest(BaseModel):
+    email : EmailStr
+    password: str
+
+class SignInRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+class UserDetails(BaseModel):
+    age : int
+    gender: str
+    weight: int
+    height: float
+    workout_type: str
+    fat_percentage: int
+    workout_frequency: int
+    experience_level: int
+    bmi: float
