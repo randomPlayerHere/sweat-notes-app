@@ -11,12 +11,12 @@ def load_workouts(path="data/context_exercises.csv"):
     return pd.read_csv(path)
 
 
-def get_embedding(text: str) -> np.ndarray:
-    res = genai.embed_content(
-        model="gemini-embedding-001",
-        content=text
-    )
-    return np.array(res["embedding"], dtype=np.float32)
+# def get_embedding(text: str) -> np.ndarray:
+#     res = genai.embed_content(
+#         model="gemini-embedding-001",
+#         content=text
+#     )
+#     return np.array(res["embedding"], dtype=np.float32)
 
 def cosine_similarity(a, b):
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
