@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Meta tags for proper rendering and mobile responsiveness -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SweatNotes - Your AI Fitness Companion</title>
+    
+    <!-- CSS Styles - Learn from these examples -->
+    <style>
+        /* 
+        CSS RESET AND BASIC STYLING
+        This removes browser default styles and sets up consistent styling
+        */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; /* Makes width/height include padding and border */
+        }
+
+        /* 
+        BODY AND TYPOGRAPHY
+        Setting up the basic look and feel of the page
+        */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        /* 
+        CONTAINER FOR CONTENT
+        This creates a centered, responsive container
+        */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 
+        HEADER STYLING
+        Creating an attractive header with navigation
+        */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px); /* Modern glass effect */
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            text-align: center;
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            text-align: center;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        /* 
+        MAIN CONTENT GRID
+        Using CSS Grid for responsive layout
+        */
+        .main-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        /* 
+        CARD COMPONENT STYLING
+        Reusable card design for forms and results
+        */
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        /* 
+        FORM STYLING
+        Making forms look modern and user-friendly
+        */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* 
+        BUTTON STYLING
+        Creating attractive, interactive buttons
+        */
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 
+        LOADING SPINNER
+        CSS animation for loading states
+        */
+        .loading-spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 
+        RESULT STYLING
+        Displaying API results beautifully
+        */
+        .result-card {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border-radius: 12px;
+        }
+
+        .result-card h3 {
+            margin-bottom: 15px;
+        }
+
+        .calorie-result {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        /* 
+        WORKOUT PLAN STYLING
+        Specific styling for workout plan display
+        */
+        .workout-day {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .workout-day h4 {
+            color: #fff;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .exercise {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .exercise-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .exercise-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+
+        /* 
+        ERROR AND SUCCESS MESSAGES
+        User feedback styling
+        */
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .message.error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+
+        .message.success {
+            background: #efe;
+            color: #363;
+            border: 1px solid #cfc;
+        }
+
+        /* 
+        RESPONSIVE DESIGN
+        Making the site work on mobile devices
+        */
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+        }
+
+        /* 
+        UTILITY CLASSES
+        Helpful classes for common styling needs
+        */
+        .hidden {
+            display: none;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-20 {
+            margin-top: 20px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 
+    HTML STRUCTURE
+    Learn how to structure web pages properly
+    -->
+    <div class="container">
+        <!-- 
+        HEADER SECTION
+        Contains title and description
+        -->
+        <header class="header">
+            <h1>🏋️ SweatNotes</h1>
+            <p>Your AI-powered fitness companion for calorie tracking and workout planning</p>
+        </header>
+
+        <!-- 
+        MAIN CONTENT AREA
+        Contains the two main features: calorie calculator and workout generator
+        -->
+        <main class="main-grid">
+            <!-- 
+            CALORIE CALCULATOR SECTION
+            This is where users input their data to get calorie predictions
+            -->
+            <section class="card">
+                <h2>Calorie Calculator</h2>
+                
+                <!-- Error/Success message display area -->
+                <div id="calorie-message" class="hidden"></div>
+                
+                <!-- 
+                CALORIE CALCULATION FORM
+                Learn how forms work and how to collect user input
+                -->
+                <form id="calorie-form">
+                    <!-- User ID field -->
+                    <div class="form-group">
+                        <label class="form-label" for="user-id">User ID *</label>
+                        <input 
+                            type="text" 
+                            id="user-id" 
+                            name="user_id" 
+                            class="form-input" 
+                            placeholder="Enter a unique identifier"
+                            required
+                        >
+                    </div>
+
+                    <!-- Age and Gender in a row -->
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label class="form-label" for="age">Age *</label>
+                            <input 
+                                type="number" 
+                                id="age" 
+                                name="age" 
+                                class="form-input" 
+                                placeholder="25"
+                                min="1" 
+                                max="120"
+                                required
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="gender">Gender *</label>
+                            <select id="gender" name="gender" class="form-select" required>
+                                <option value="">Select gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Weight and Height in a row -->
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label class="form-label" for="weight">Weight (kg) *</label>
+                            <input 
+                                type="number" 
+                                id="weight" 
+                                name="weight" 
+                                class="form-input" 
+                                placeholder="70"
+                                min="1" 
+                                step="0.1"
+                                required
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="height">Height (m) *</label>
+                            <input 
+                                type="number" 
+                                id="height" 
+                                name="height" 
+                                class="form-input" 
+                                placeholder="1.75"
+                                min="0.5" 
+                                max="3" 
+                                step="0.01"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Workout Type -->
+                    <div class="form-group">
+                        <label class="form-label" for="workout-type">Workout Type *</label>
+                        <select id="workout-type" name="workout_type" class="form-select" required>
+                            <option value="">Select workout type</option>
+                            <option value="Running">Running</option>
+                            <option value="Cycling">Cycling</option>
+                            <option value="Swimming">Swimming</option>
+                            <option value="Weightlifting">Weightlifting</option>
+                            <option value="HIIT">HIIT</option>
+                            <option value="Yoga">Yoga</option>
+                            <option value="Walking">Walking</option>
+                        </select>
+                    </div>
+
+                    <!-- Optional fields -->
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label class="form-label" for="fat-percentage">Body Fat %</label>
+                            <input 
+                                type="number" 
+                                id="fat-percentage" 
+                                name="fat_percentage" 
+                                class="form-input" 
+                                placeholder="15"
+                                min="1" 
+                                max="50" 
+                                step="0.1"
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="workout-frequency">Workouts/Week</label>
+                            <input 
+                                type="number" 
+                                id="workout-frequency" 
+                                name="workout_frequency" 
+                                class="form-input" 
+                                placeholder="3"
+                                min="0" 
+                                max="7"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Submit button -->
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <span id="calorie-btn-text">Calculate Calories</span>
+                        <div id="calorie-loading" class="loading-spinner hidden"></div>
+                    </button>
+                </form>
+
+                <!-- 
+                RESULTS DISPLAY AREA
+                This will show the calorie calculation results
+                -->
+                <div id="calorie-results" class="hidden"></div>
+            </section>
+
+            <!-- 
+            WORKOUT GENERATOR SECTION
+            This is where users can get AI-generated workout plans
+            -->
+            <section class="card">
+                <h2>Workout Generator</h2>
+                
+                <!-- Message display area -->
+                <div id="workout-message" class="hidden"></div>
+                
+                <p style="margin-bottom: 20px; color: #666;">
+                    Describe your ideal workout, and our AI will create a personalized plan for you.
+                </p>
+
+                <!-- 
+                WORKOUT GENERATION FORM
+                Simple form with just a text area for natural language input
+                -->
+                <form id="workout-form">
+                    <div class="form-group">
+                        <label class="form-label" for="workout-query">Workout Request *</label>
+                        <textarea 
+                            id="workout-query" 
+                            name="query" 
+                            class="form-textarea" 
+                            rows="4"
+                            placeholder="Example: I want a 3-day upper body workout using dumbbells for a beginner"
+                            required
+                        ></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <span id="workout-btn-text">Generate Workout Plan</span>
+                        <div id="workout-loading" class="loading-spinner hidden"></div>
+                    </button>
+                </form>
+
+                <!-- 
+                WORKOUT RESULTS DISPLAY AREA
+                This will show the generated workout plan
+                -->
+                <div id="workout-results" class="hidden"></div>
+            </section>
+        </main>
+
+        <!-- 
+        INFORMATION SECTION
+        Educational content about how the app works
+        -->
+        <section class="card text-center">
+            <h2>How It Works</h2>
+            <div class="main-grid">
+                <div>
+                    <h3 style="color: #667eea; margin-bottom: 10px;">1. Input Your Data</h3>
+                    <p>Provide your personal fitness information and goals</p>
+                </div>
+                <div>
+                    <h3 style="color: #667eea; margin-bottom: 10px;">2. AI Processing</h3>
+                    <p>Our machine learning models analyze your data and preferences</p>
+                </div>
+                <div>
+                    <h3 style="color: #667eea; margin-bottom: 10px;">3. Get Results</h3>
+                    <p>Receive personalized recommendations instantly</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- 
+    JAVASCRIPT CODE
+    This is where the magic happens - learn how to make web pages interactive
+    -->
+    <script>
+        /*
+        JAVASCRIPT FUNDAMENTALS
+        
+        JavaScript makes web pages interactive. Here's what we'll cover:
+        1. DOM manipulation (changing HTML elements)
+        2. Event handling (responding to user actions)
+        3. Fetch API (making HTTP requests)
+        4. Async/await (handling asynchronous operations)
+        5. Error handling (dealing with failures gracefully)
+        */
+
+        // API Configuration
+        const API_BASE_URL = 'http://localhost:8000';
+
+        /*
+        UTILITY FUNCTIONS
+        These are helper functions that we'll use throughout the app
+        */
+
+        /**
+         * Show a message to the user
+         * @param {string} elementId - The ID of the element to show the message in
+         * @param {string} message - The message text
+         * @param {string} type - The type of message ('error' or 'success')
+         */
+        function showMessage(elementId, message, type) {
+            const messageEl = document.getElementById(elementId);
+            messageEl.className = `message ${type}`;
+            messageEl.textContent = message;
+            messageEl.classList.remove('hidden');
+        }
+
+        /**
+         * Hide a message element
+         * @param {string} elementId - The ID of the element to hide
+         */
+        function hideMessage(elementId) {
+            const messageEl = document.getElementById(elementId);
+            messageEl.classList.add('hidden');
+        }
+
+        /**
+         * Show loading state for a button
+         * @param {string} btnTextId - ID of the button text element
+         * @param {string} loadingId - ID of the loading spinner element
+         * @param {string} loadingText - Text to show while loading
+         */
+        function showLoading(btnTextId, loadingId, loadingText) {
+            document.getElementById(btnTextId).textContent = loadingText;
+            document.getElementById(loadingId).classList.remove('hidden');
+        }
+
+        /**
+         * Hide loading state for a button
+         * @param {string} btnTextId - ID of the button text element
+         * @param {string} loadingId - ID of the loading spinner element
+         * @param {string} originalText - Original button text
+         */
+        function hideLoading(btnTextId, loadingId, originalText) {
+            document.getElementById(btnTextId).textContent = originalText;
+            document.getElementById(loadingId).classList.add('hidden');
+        }
+
+        /**
+         * Format rest time from seconds to readable format
+         * @param {number} seconds - Rest time in seconds
+         * @returns {string} Formatted time string
+         */
+        function formatRestTime(seconds) {
+            if (seconds < 60) {
+                return `${seconds}s`;
+            } else {
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                return remainingSeconds > 0 ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`;
+            }
+        }
+
+        /*
+        CALORIE CALCULATOR FUNCTIONALITY
+        This section handles the calorie prediction feature
+        */
+
+        /**
+         * Handle calorie form submission
+         * This is an async function because we need to wait for the API response
+         */
+        async function handleCalorieSubmit(event) {
+            // Prevent the default form submission (which would reload the page)
+            event.preventDefault();
+
+            // Hide any previous messages
+            hideMessage('calorie-message');
+
+            // Show loading state
+            showLoading('calorie-btn-text', 'calorie-loading', 'Calculating...');
+
+            try {
+                // Get form data
+                const formData = new FormData(event.target);
+                
+                // Convert form data to JavaScript object
+                const data = {
+                    user_id: formData.get('user_id'),
+                    age: parseInt(formData.get('age')),
+                    gender: formData.get('gender'),
+                    weight: parseFloat(formData.get('weight')),
+                    height: parseFloat(formData.get('height')),
+                    workout_type: formData.get('workout_type'),
+                    fat_percentage: parseFloat(formData.get('fat_percentage')) || 0,
+                    workout_frequency: parseInt(formData.get('workout_frequency')) || 0,
+                    experience_level: 1, // Default value
+                    bmi: 0, // Will be calculated by backend
+                    intensity_level: 1, // Default value
+                    session_duration: 1.0 // Default value
+                };
+
+                console.log('Sending calorie prediction request:', data);
+
+                // Make API call to FastAPI backend
+                const response = await fetch(`${API_BASE_URL}/predict/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                // Check if the response is successful
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                // Parse the JSON response
+                const result = await response.json();
+
+                // Display the results
+                displayCalorieResults(result, data);
+
+                // Show success message
+                showMessage('calorie-message', 'Calorie calculation completed successfully!', 'success');
+
+            } catch (error) {
+                // Handle any errors that occurred
+                console.error('Error calculating calories:', error);
+                showMessage('calorie-message', 
+                    'Failed to calculate calories. Make sure the backend server is running on http://localhost:8000', 
+                    'error'
+                );
+            } finally {
+                // Always hide loading state when done (success or error)
+                hideLoading('calorie-btn-text', 'calorie-loading', 'Calculate Calories');
+            }
+        }
+
+        /**
+         * Display calorie calculation results
+         * @param {Object} result - The API response
+         * @param {Object} userData - The original user data
+         */
+        function displayCalorieResults(result, userData) {
+            const resultsEl = document.getElementById('calorie-results');
+            
+            resultsEl.innerHTML = `
+                <div class="result-card">
+                    <h3>Your Daily Calorie Needs</h3>
+                    <div class="calorie-result">${Math.round(result.predicted_calories)} calories/day</div>
+                    <p><strong>Based on:</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>${userData.age} year old ${userData.gender.toLowerCase()}</li>
+                        <li>${userData.weight}kg, ${userData.height}m</li>
+                        <li>Primary activity: ${userData.workout_type}</li>
+                        ${userData.workout_frequency > 0 ? `<li>${userData.workout_frequency} workouts per week</li>` : ''}
+                    </ul>
+                    <p style="margin-top: 15px; font-size: 0.9rem; opacity: 0.8;">
+                        <strong>Note:</strong> This is an estimate. Consult with a healthcare professional for personalized advice.
+                    </p>
+                </div>
+            `;
+            
+            resultsEl.classList.remove('hidden');
+        }
+
+        /*
+        WORKOUT GENERATOR FUNCTIONALITY
+        This section handles the workout plan generation feature
+        */
+
+        /**
+         * Handle workout form submission
+         */
+        async function handleWorkoutSubmit(event) {
+            event.preventDefault();
+
+            hideMessage('workout-message');
+            showLoading('workout-btn-text', 'workout-loading', 'Generating...');
+
+            try {
+                const formData = new FormData(event.target);
+                const data = {
+                    query: formData.get('query')
+                };
+
+                console.log('Sending workout generation request:', data);
+
+                const response = await fetch(`${API_BASE_URL}/generate/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                displayWorkoutResults(result);
+                showMessage('workout-message', 'Workout plan generated successfully!', 'success');
+
+            } catch (error) {
+                console.error('Error generating workout:', error);
+                showMessage('workout-message', 
+                    'Failed to generate workout plan. Make sure the backend server is running on http://localhost:8000', 
+                    'error'
+                );
+            } finally {
+                hideLoading('workout-btn-text', 'workout-loading', 'Generate Workout Plan');
+            }
+        }
+
+        /**
+         * Display workout generation results
+         * @param {Object} result - The API response containing the workout plan
+         */
+        function displayWorkoutResults(result) {
+            const resultsEl = document.getElementById('workout-results');
+            
+            let html = `
+                <div class="result-card">
+                    <h3>Your Personalized Workout Plan</h3>
+                    <p><strong>Days per week:</strong> ${result.days_per_week}</p>
+            `;
+
+            // Show preferences that were respected
+            if (result.preferences_respected && result.preferences_respected.length > 0) {
+                html += `
+                    <div style="margin-top: 15px;">
+                        <strong>Preferences included:</strong>
+                        <ul style="margin-left: 20px; margin-top: 5px;">
+                            ${result.preferences_respected.map(pref => `<li>${pref}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            // Show workout days
+            if (result.days && result.days.length > 0) {
+                html += '<div style="margin-top: 20px;">';
+                
+                result.days.forEach(day => {
+                    html += `
+                        <div class="workout-day">
+                            <h4>${day.day}</h4>
+                    `;
+                    
+                    if (day.exercises && day.exercises.length > 0) {
+                        day.exercises.forEach(exercise => {
+                            html += `
+                                <div class="exercise">
+                                    <div class="exercise-name">${exercise.name}</div>
+                                    <div class="exercise-details">
+                                        <div><strong>Sets:</strong> ${exercise.sets}</div>
+                                        <div><strong>Reps:</strong> ${exercise.reps}</div>
+                                        <div><strong>Rest:</strong> ${formatRestTime(exercise.rest_time_seconds)}</div>
+                                    </div>
+                                    ${exercise.notes ? `<div style="margin-top: 8px; font-style: italic; font-size: 0.9rem;"><strong>Note:</strong> ${exercise.notes}</div>` : ''}
+                                </div>
+                            `;
+                        });
+                    } else {
+                        html += '<p style="font-style: italic;">Rest day or no exercises planned</p>';
+                    }
+                    
+                    html += '</div>';
+                });
+                
+                html += '</div>';
+            }
+
+            // Add disclaimer
+            html += `
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; font-size: 0.9rem;">
+                    <strong>⚠️ Important:</strong> This workout plan is generated by AI and should be used as a starting point. 
+                    Always consult with a qualified fitness professional before starting any new exercise routine.
+                </div>
+            `;
+
+            html += '</div>';
+            
+            resultsEl.innerHTML = html;
+            resultsEl.classList.remove('hidden');
+        }
+
+        /*
+        EVENT LISTENERS
+        This is where we connect our JavaScript functions to HTML elements
+        */
+
+        // Wait for the DOM to be fully loaded before setting up event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get form elements
+            const calorieForm = document.getElementById('calorie-form');
+            const workoutForm = document.getElementById('workout-form');
+
+            // Add event listeners for form submissions
+            calorieForm.addEventListener('submit', handleCalorieSubmit);
+            workoutForm.addEventListener('submit', handleWorkoutSubmit);
+
+            // Log that the app is ready
+            console.log('SweatNotes frontend is ready!');
+            console.log('Make sure your FastAPI backend is running on http://localhost:8000');
+        });
+
+        /*
+        ADDITIONAL FEATURES YOU CAN ADD:
+        
+        1. Form validation before submission
+        2. Auto-calculation of BMI
+        3. Local storage to save user preferences
+        4. Progressive Web App features
+        5. Dark mode toggle
+        6. Exercise library with images
+        7. Progress tracking
+        8. Social sharing
+        
+        This is your starting point - build from here!
+        */
+    </script>
+</body>
+</html>

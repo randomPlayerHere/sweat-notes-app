@@ -5,6 +5,5 @@ matplotlib
 scikit-learn
 python-dotenv
 google-generativeai
-supabase
 fastapi
 uvicorn

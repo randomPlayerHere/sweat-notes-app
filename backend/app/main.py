@@ -3,8 +3,17 @@ from fastapi import FastAPI
 from backend.app.models.schema import PredictCalorieRequest, PredictCalorieResponse, WorkoutGenerationQuery, WorkoutGenerationResponse
 from backend.app.services.calorie_prediction import get_prediction
 from backend.app.services.workout_generation import workout_plan
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Sweat Notes")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # frontend dev server
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def status():
