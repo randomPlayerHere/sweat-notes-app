@@ -1,0 +1,497 @@
+FASTAPI + REACT FRONTEND INTEGRATION GUIDE
+=====================================================
+
+This guide explains how to connect your React frontend to your FastAPI backend based on your project structure.
+
+PROJECT STRUCTURE ANALYSIS
+==========================
+Your FastAPI Backend Structure:
+- backend/app/main.py (main FastAPI application)
+- backend/app/services/rag/calorie_prediction.py (calorie prediction logic)
+- backend/app/services/rag/workout_generation.py (workout generation logic)
+- backend/app/models/schema.py (data models/schemas)
+
+Your React Frontend:
+- Already built with components matching your API requirements
+- Forms: CaloriePredictorForm, WorkoutGeneratorForm  
+- Results: PredictionResult, WorkoutPlan
+
+STEP 1: FASTAPI BACKEND SETUP
+=============================
+
+1.1 Install Required Dependencies
+---------------------------------
+In your backend directory, ensure you have:
+```
+pip install fastapi uvicorn python-multipart pydantic-core
+pip install python-cors-middleware  # For CORS handling
+```
+
+1.2 Update main.py
+------------------
+Your backend/app/main.py should look like this:
+
+```python
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import List, Optional
+import sys
+import os
+
+# Add the app directory to Python path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+from services.rag.calorie_prediction import predict_calories
+from services.rag.workout_generation import generate_workout
+from models.schema import CalorieRequest, CalorieResponse, WorkoutRequest, WorkoutResponse
+
+app = FastAPI(title="Fitness API", version="1.0.0")
+
+# CORS middleware - CRITICAL for frontend connection
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5000", "http://127.0.0.1:5000", "*"],  # Add your frontend URL
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["*"],
+)
+
+@app.get("/")
+async def root():
+    return {"message": "Fitness API is running"}
+
+@app.post("/predict", response_model=CalorieResponse)
+async def predict_daily_calories(request: CalorieRequest):
+    try:
+        result = predict_calories(request)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/generate", response_model=WorkoutResponse)
+async def generate_workout_plan(request: WorkoutRequest):
+    try:
+        result = generate_workout(request)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+```
+
+1.3 Update models/schema.py
+---------------------------
+Define your data models to match the frontend:
+
+```python
+from pydantic import BaseModel
+from typing import List, Optional
+
+class CalorieRequest(BaseModel):
+    user_id: str
+    age: int
+    gender: str  # "Male" or "Female"
+    weight: float  # in kg
+    height: float  # in meters
+    workout_type: str  # "HIIT", "Strength", "Cardio", "Yoga", "Mixed"
+    fat_percentage: float
+    workout_frequency: int  # days per week
+    experience_level: int  # 1, 2, or 3
+    bmi: float
+    intensity_level: int  # 1, 2, or 3
+    session_duration: int  # minutes
+
+class CalorieResponse(BaseModel):
+    user_id: str
+    predicted_calories: int
+
+class WorkoutRequest(BaseModel):
+    query: str
+
+class Exercise(BaseModel):
+    name: str
+    sets: int
+    reps: str
+    rest_time_seconds: int
+    notes: str
+
+class WorkoutDay(BaseModel):
+    day: str
+    exercises: List[Exercise]
+
+class WorkoutResponse(BaseModel):
+    days_per_week: int
+    days: List[WorkoutDay]
+    injuries_considered: List[str]
+    preferences_respected: List[str]
+```
+
+1.4 Update Service Functions
+----------------------------
+Update your services/rag/calorie_prediction.py:
+
+```python
+from models.schema import CalorieRequest, CalorieResponse
+
+def predict_calories(request: CalorieRequest) -> CalorieResponse:
+    """
+    Your ML model logic here
+    """
+    # Example calculation (replace with your actual ML model)
+    bmr = calculate_bmr(request.age, request.gender, request.weight, request.height)
+    activity_factor = 1.2 + (request.workout_frequency * 0.1) + (request.intensity_level * 0.05)
+    predicted_calories = int(bmr * activity_factor)
+    
+    return CalorieResponse(
+        user_id=request.user_id,
+        predicted_calories=predicted_calories
+    )
+
+def calculate_bmr(age: int, gender: str, weight: float, height: float) -> float:
+    """Calculate Basal Metabolic Rate"""
+    height_cm = height * 100  # convert to cm
+    if gender == "Male":
+        return (10 * weight) + (6.25 * height_cm) - (5 * age) + 5
+    else:
+        return (10 * weight) + (6.25 * height_cm) - (5 * age) - 161
+```
+
+Update your services/rag/workout_generation.py:
+
+```python
+from models.schema import WorkoutRequest, WorkoutResponse, WorkoutDay, Exercise
+from typing import List
+
+def generate_workout(request: WorkoutRequest) -> WorkoutResponse:
+    """
+    Your workout generation logic here
+    """
+    # Parse the query and generate workout
+    query = request.query.lower()
+    
+    # Example logic (replace with your actual generation)
+    days = parse_workout_request(query)
+    
+    return WorkoutResponse(
+        days_per_week=len(days),
+        days=days,
+        injuries_considered=[],
+        preferences_respected=extract_preferences(query)
+    )
+
+def parse_workout_request(query: str) -> List[WorkoutDay]:
+    # Your parsing logic here
+    # Return list of WorkoutDay objects
+    pass
+
+def extract_preferences(query: str) -> List[str]:
+    # Extract user preferences from query
+    # Return list of respected preferences
+    pass
+```
+
+STEP 2: FRONTEND API INTEGRATION
+================================
+
+2.1 Create API Client
+---------------------
+Create a new file: client/src/lib/api.ts
+
+```typescript
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://your-fastapi-domain.com'  // Your production API URL
+  : 'http://localhost:8000';           // Local development
+
+interface CaloriePredictionRequest {
+  user_id: string;
+  age: number;
+  gender: string;
+  weight: number;
+  height: number;
+  workout_type: string;
+  fat_percentage: number;
+  workout_frequency: number;
+  experience_level: number;
+  bmi: number;
+  intensity_level: number;
+  session_duration: number;
+}
+
+interface CaloriePredictionResponse {
+  user_id: string;
+  predicted_calories: number;
+}
+
+interface WorkoutGenerationRequest {
+  query: string;
+}
+
+interface WorkoutGenerationResponse {
+  days_per_week: number;
+  days: Array<{
+    day: string;
+    exercises: Array<{
+      name: string;
+      sets: number;
+      reps: string;
+      rest_time_seconds: number;
+      notes: string;
+    }>;
+  }>;
+  injuries_considered: string[];
+  preferences_respected: string[];
+}
+
+export async function predictCalories(data: CaloriePredictionRequest): Promise<CaloriePredictionResponse> {
+  const response = await fetch(`${API_BASE_URL}/predict`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || 'Failed to predict calories');
+  }
+
+  return response.json();
+}
+
+export async function generateWorkout(data: WorkoutGenerationRequest): Promise<WorkoutGenerationResponse> {
+  const response = await fetch(`${API_BASE_URL}/generate`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || 'Failed to generate workout');
+  }
+
+  return response.json();
+}
+```
+
+2.2 Update Home.tsx
+-------------------
+Replace the mock API calls in client/src/pages/Home.tsx:
+
+```typescript
+import { predictCalories, generateWorkout } from '@/lib/api';
+
+// Replace handleCaloriePredict function:
+const handleCaloriePredict = async (data: CalorieFormData) => {
+  setLoadingCalories(true);
+  setCalorieFormData(data);
+  
+  try {
+    // Convert form data to API format
+    const apiData = {
+      user_id: data.user_id,
+      age: parseInt(data.age),
+      gender: data.gender,
+      weight: parseFloat(data.weight),
+      height: parseFloat(data.height),
+      workout_type: data.workout_type,
+      fat_percentage: parseFloat(data.fat_percentage),
+      workout_frequency: parseInt(data.workout_frequency),
+      experience_level: parseInt(data.experience_level),
+      bmi: parseFloat(data.bmi),
+      intensity_level: parseInt(data.intensity_level),
+      session_duration: parseInt(data.session_duration)
+    };
+    
+    const result = await predictCalories(apiData);
+    setCalorieResult(result);
+  } catch (error) {
+    console.error('Error predicting calories:', error);
+    // Add proper error handling (toast notification, etc.)
+  } finally {
+    setLoadingCalories(false);
+  }
+};
+
+// Replace handleWorkoutGenerate function:
+const handleWorkoutGenerate = async (data: WorkoutFormData) => {
+  setLoadingWorkout(true);
+  setWorkoutQuery(data.query);
+  
+  try {
+    const result = await generateWorkout(data);
+    setWorkoutResult(result);
+  } catch (error) {
+    console.error('Error generating workout:', error);
+    // Add proper error handling
+  } finally {
+    setLoadingWorkout(false);
+  }
+};
+```
+
+STEP 3: RUNNING BOTH SERVICES
+=============================
+
+3.1 Start FastAPI Backend
+-------------------------
+In your backend directory:
+```bash
+cd backend
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+Your API will be available at: http://localhost:8000
+API docs will be available at: http://localhost:8000/docs
+
+3.2 Start React Frontend
+------------------------
+Your React frontend is already configured to run on port 5000:
+```bash
+npm run dev
+```
+
+Frontend will be available at: http://localhost:5000
+
+STEP 4: ENVIRONMENT VARIABLES
+=============================
+
+4.1 Backend Environment (.env)
+------------------------------
+Create/update backend/.env:
+```
+# API Configuration
+API_HOST=0.0.0.0
+API_PORT=8000
+
+# Database (if needed)
+DATABASE_URL=your_database_url
+
+# ML Model Settings
+MODEL_PATH=./ml_models/
+ENABLE_CACHING=true
+
+# CORS Settings
+ALLOWED_ORIGINS=http://localhost:5000,http://127.0.0.1:5000
+```
+
+4.2 Frontend Environment
+------------------------
+No additional environment variables needed for development.
+For production, set:
+```
+VITE_API_BASE_URL=https://your-fastapi-domain.com
+```
+
+STEP 5: TESTING THE CONNECTION
+==============================
+
+5.1 Test API Endpoints Directly
+-------------------------------
+Visit http://localhost:8000/docs to test your API endpoints with the interactive Swagger UI.
+
+Test data for /predict:
+```json
+{
+  "user_id": "test123",
+  "age": 25,
+  "gender": "Male",
+  "weight": 70.0,
+  "height": 1.75,
+  "workout_type": "HIIT",
+  "fat_percentage": 15.5,
+  "workout_frequency": 4,
+  "experience_level": 2,
+  "bmi": 22.9,
+  "intensity_level": 3,
+  "session_duration": 60
+}
+```
+
+Test data for /generate:
+```json
+{
+  "query": "Create a 4-day upper body workout plan for muscle gain with dumbbells"
+}
+```
+
+5.2 Test Frontend Integration
+----------------------------
+1. Start both services (backend on 8000, frontend on 5000)
+2. Open http://localhost:5000
+3. Fill out the calorie prediction form
+4. Verify the API call in browser dev tools (Network tab)
+5. Check the response matches your backend
+
+STEP 6: COMMON ISSUES & SOLUTIONS
+=================================
+
+6.1 CORS Errors
+---------------
+If you see CORS errors:
+- Ensure CORSMiddleware is properly configured in main.py
+- Add your frontend URL to allowed_origins
+- Check that credentials are allowed if needed
+
+6.2 Import Errors
+----------------
+If you get Python import errors:
+- Ensure __init__.py files exist in all directories
+- Check your Python path configuration
+- Verify relative imports in your service files
+
+6.3 Network Errors
+------------------
+If frontend can't reach backend:
+- Verify backend is running on port 8000
+- Check firewall settings
+- Ensure API_BASE_URL is correct in frontend
+
+6.4 Data Validation Errors
+--------------------------
+If you get 422 validation errors:
+- Check that form data types match Pydantic models
+- Verify field names match exactly
+- Ensure required fields are not empty
+
+STEP 7: PRODUCTION DEPLOYMENT
+=============================
+
+7.1 Backend Deployment
+----------------------
+- Deploy FastAPI using services like Railway, Heroku, or DigitalOcean
+- Set environment variables for production
+- Update CORS origins to include your frontend domain
+
+7.2 Frontend Deployment
+----------------------
+- Update VITE_API_BASE_URL to your production API URL
+- Deploy to Replit, Vercel, or similar service
+- Ensure API calls use HTTPS in production
+
+TROUBLESHOOTING CHECKLIST
+=========================
+□ Backend is running on port 8000
+□ Frontend is running on port 5000  
+□ CORS is properly configured
+□ API endpoints return expected data structure
+□ Form data is properly converted to API format
+□ Error handling is implemented
+□ Environment variables are set correctly
+
+NEXT STEPS
+==========
+1. Replace mock functions with actual ML model implementations
+2. Add proper error handling and user feedback
+3. Implement authentication if needed
+4. Add data validation on both frontend and backend
+5. Set up logging and monitoring
+6. Write tests for your API endpoints
+
+This guide should help you successfully connect your React frontend to your FastAPI backend. If you encounter any specific issues, check the troubleshooting section or examine the console/network logs for more details.

@@ -47,24 +47,24 @@ class PredictCalorieResponse(BaseModel):
     predicted_calories: float
 
 
-class SignUpRequest(BaseModel):
-    email : EmailStr
-    password: str
+# class SignUpRequest(BaseModel):
+#     email : EmailStr
+#     password: str
 
-class SignInRequest(BaseModel):
-    email: EmailStr
-    password: str
+# class SignInRequest(BaseModel):
+#     email: EmailStr
+#     password: str
 
-class UserDetails(BaseModel):
-    age : int
-    gender: str
-    weight: int
-    height: float
-    workout_type: str
-    fat_percentage: int
-    workout_frequency: int
-    experience_level: int
-    bmi: float
+# class UserDetails(BaseModel):
+#     age : int
+#     gender: str
+#     weight: int
+#     height: float
+#     workout_type: str
+#     fat_percentage: int
+#     workout_frequency: int
+#     experience_level: int
+#     bmi: float
 
 class WorkoutGenerationQuery(BaseModel):
     query: str

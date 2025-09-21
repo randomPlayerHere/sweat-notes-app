@@ -22,6 +22,5 @@ def predictCalories(req: PredictCalorieRequest):
 
 @app.post("/generate/", response_model=WorkoutGenerationResponse)
 def genWorkoutplan(query: WorkoutGenerationQuery):
-    # workout_plan(query) should already return a dict with the correct keys
     plan = workout_plan(query)
     return WorkoutGenerationResponse(**plan)
